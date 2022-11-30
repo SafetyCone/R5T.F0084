@@ -53,15 +53,15 @@ namespace R5T.F0084
 				ProjectFileSystemOperations.Instance.SetupProjectFileSystem_WebServerForBlazorClient);
 		}
 
-        public async Task CreateNewProject_WebServerForBlazorClient(
+        public async Task CreateNewProject_WebBlazorClient(
             string projectFilePath,
             string projectDescription)
         {
             await ProjectOperator.Instance.CreateNewProject(
                 projectFilePath,
                 projectDescription,
-                F0081.ProjectFileOperations.Instance.CreateNewProjectFile_WebServerForBlazorClient,
-                ProjectFileSystemOperations.Instance.SetupProjectFileSystem_WebServerForBlazorClient);
+                F0081.ProjectFileOperations.Instance.CreateNewProjectFile_WebBlazorClient,
+                ProjectFileSystemOperations.Instance.SetupProjectFileSystem_WebBlazorClient);
         }
     }
 }
