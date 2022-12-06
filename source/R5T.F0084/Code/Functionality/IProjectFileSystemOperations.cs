@@ -1,17 +1,46 @@
 using System;
 using System.Threading.Tasks;
 
+using R5T.F0078;
 using R5T.T0132;
 
 using R5T.F0084.T002;
-using System.ComponentModel;
+
 
 namespace R5T.F0084
 {
 	[FunctionalityMarker]
 	public partial interface IProjectFileSystemOperations : IFunctionalityMarker
 	{
-		public async Task SetupProjectFileSystem_Console(
+        public async Task SetupProjectFileSystem_RazorClassLibrary(
+            ProjectContext projectContext)
+        {
+            await this.SetupProjectFileSystem_Initial(projectContext);
+
+            // Components directory
+            await this.CreateComponentsDirectory(projectContext);
+
+            // Create an example component so the components directory is not empty (so that the components directory is not hidden in the Visual Studio solution explorer).
+            await this.CreateExampleComponent(projectContext);
+
+            // Create a wwwroot directory.
+            await this.CreateWwwRootDirectory(projectContext);
+
+            // Create something in the wwwroot directory so it is not empty (to make sure the directory is not hidden in the Visual Studio solution explorer).
+            var wwwRootPlaceholderFilePath = F0002.PathOperator.Instance.GetFilePath(
+                Instances.ProjectPathsOperator.GetWwwRootDirectoryPath(
+                    projectContext.ProjectFilePath),
+                "Placeholder.html");
+
+            F0000.FileOperator.Instance.WriteText(
+                wwwRootPlaceholderFilePath,
+                "Placeholder text...");
+
+            // Create the Tailwind CSS content paths JSON file.
+            await this.CreateTailwindContentPathsJsonFile(projectContext);
+        }
+
+        public async Task SetupProjectFileSystem_Console(
 			ProjectContext projectContext)
 		{
 			await this.SetupProjectFileSystem_Initial(projectContext);
@@ -19,7 +48,28 @@ namespace R5T.F0084
 			await this.CreateProgramFile_Console(projectContext);
 		}
 
-		public async Task SetupProjectFileSystem_WebServerForBlazorClient(
+        public async Task SetupProjectFileSystem_WebServerForBlazorClient(
+            ProjectContext projectContext)
+        {
+            await this.SetupProjectFileSystem_Initial(projectContext);
+
+            // Create the Properties directory.
+            await this.CreatePropertiesDirectory(projectContext);
+
+            // Launch settings JSON file.
+            await this.CreateLaunchSettingsJsonFile_WebServerForBlazorClient(projectContext);
+
+            // AppSettings JSON file.
+            await this.CreateAppSettingsJsonFile(projectContext);
+
+            // Development AppSettings JSON file.
+            await this.CreateAppSettingsDevelopmentJsonFile(projectContext);
+
+            // Program file for web server for Blazor client.
+            await this.CreateProgramFile_WebServerForBlazorClient(projectContext);
+        }
+
+        public async Task SetupProjectFileSystem_WebStaticRazorComponents(
 			ProjectContext projectContext)
 		{
 			await this.SetupProjectFileSystem_Initial(projectContext);
@@ -28,7 +78,7 @@ namespace R5T.F0084
 			await this.CreatePropertiesDirectory(projectContext);
 
 			// Launch settings JSON file.
-			await this.CreateLaunchSettingsJsonFile_WebServerForBlazorClient(projectContext);
+			await this.CreateLaunchSettingsJsonFile_WebServer(projectContext);
 
 			// AppSettings JSON file.
 			await this.CreateAppSettingsJsonFile(projectContext);
@@ -37,8 +87,54 @@ namespace R5T.F0084
 			await this.CreateAppSettingsDevelopmentJsonFile(projectContext);
 
 			// Program file for web server for Blazor client.
-			await this.CreateProgramFile_WebServerForBlazorClient(projectContext);
-		}
+			await this.CreateProgramFile_WebStaticRazorComponents(projectContext);
+
+            // Pages directory
+            await this.CreatePagesDirectory(projectContext);
+
+			// No shared directory.
+
+            // Components directory
+            await this.CreateComponentsDirectory(projectContext);
+
+            // The CSHTML (Razor) page hosting the Razor components App component rendered statically.
+            await this.CreateStaticRazorComponentsHostFile(projectContext);
+
+			// The App component.
+			await this.CreateAppRazorFile_WebStaticRazorComponents(projectContext);
+
+			// A friendly Index razor file.
+			await this.CreateIndexRazorFile(projectContext);
+
+			// For some reason, the WebApplication.CreateBuilder() call fails if there is no wwwroot directory.
+			await this.CreateWwwRootDirectory(projectContext);
+
+            // Add TailwindCSS
+            // NPM package.json.
+            await this.CreatePackageJsonFile(projectContext);
+
+            // Create the Tailwind CSS content paths JSON file.
+            await this.CreateTailwindContentPathsJsonFile(projectContext);
+
+            // Create the Tailwind CSS all content paths JSON file.
+            await this.CreateTailwindAllContentPathsJsonFile(projectContext);
+
+            // TailwindCSS config.
+            await this.CreateTailwindConfigJsFile(projectContext);
+
+            // source directory
+            // source/css directory
+            // Tailwind.css file.
+            await this.CreateTailwindCssFile(projectContext);
+
+            // Run the npm install command.
+            await CliWrap.Cli.Wrap("npm")
+                .WithArguments("install -y")
+                .WithWorkingDirectory(projectContext.ProjectDirectoryPath)
+                .WithConsoleOutput()
+                .WithConsoleError()
+                .ExecuteAsync();
+        }
 
         public async Task SetupProjectFileSystem_WebBlazorClient(
             ProjectContext projectContext)
@@ -93,6 +189,16 @@ namespace R5T.F0084
 			await this.CreateIndexRazorFile_WebBlazorClient(projectContext);
         }
 
+        public async Task CreateExampleComponent(ProjectContext projectContext)
+        {
+            var exampleComponentRazorFilePath = Instances.ProjectPathsOperator.GetExampleComponentRazorFilePath(
+                projectContext.ProjectFilePath);
+
+            await Instances.CodeFileGenerationOperations.CreateExampleComponentRazorFile(
+                exampleComponentRazorFilePath,
+                projectContext.ProjectDefaultNamespaceName);
+        }
+
         public async Task CreateIndexRazorFile_WebBlazorClient(ProjectContext projectContext)
         {
             var mainImportsRazorFilePath = Instances.ProjectPathsOperator.GetIndexRazorFilePath(
@@ -108,7 +214,8 @@ namespace R5T.F0084
                 projectContext.ProjectFilePath);
 
             await Instances.CodeFileGenerationOperations.CreateMainLayoutRazorFile_WebBlazorClient(
-                mainImportsRazorFilePath);
+                mainImportsRazorFilePath,
+				projectContext.ProjectDefaultNamespaceName);
         }
 
         public async Task CreateImportsRazorFile_WebBlazorClient_Main(ProjectContext projectContext)
@@ -117,7 +224,28 @@ namespace R5T.F0084
                 projectContext.ProjectFilePath);
 
             await Instances.CodeFileGenerationOperations.CreateImportsRazorFile_WebBlazorClient_Main(
-                mainImportsRazorFilePath);
+                mainImportsRazorFilePath,
+				projectContext.ProjectDefaultNamespaceName);
+        }
+
+        public async Task CreateIndexRazorFile(ProjectContext projectContext)
+        {
+            var indexRazorFilePath = Instances.ProjectPathsOperator.GetIndexRazorFilePath(
+                projectContext.ProjectFilePath);
+
+            await Instances.CodeFileGenerationOperations.CreateIndexRazorFile(
+                indexRazorFilePath,
+                projectContext.ProjectDefaultNamespaceName);
+        }
+
+        public async Task CreateAppRazorFile_WebStaticRazorComponents(ProjectContext projectContext)
+        {
+            var appRazorFilePath = Instances.ProjectPathsOperator.GetAppRazorFilePath_InComponents(
+                projectContext.ProjectFilePath);
+
+            await Instances.CodeFileGenerationOperations.CreateAppRazorFile_StaticRazorComponents(
+                appRazorFilePath,
+				projectContext.ProjectDefaultNamespaceName);
         }
 
         public async Task CreateAppRazorFile_WebBlazorClient(ProjectContext projectContext)
@@ -199,7 +327,27 @@ namespace R5T.F0084
                 tailwindConfigJsFilePath);
         }
 
-		public async Task CreatePackageJsonFile(ProjectContext projectContext)
+        public async Task CreateTailwindContentPathsJsonFile(ProjectContext projectContext)
+        {
+            var tailwindContentPathsJsonFilePath = Instances.ProjectPathsOperator.GetTailwindContentPathsJsonFilePath(
+                projectContext.ProjectFilePath);
+
+            await Instances.CodeFileGenerationOperations.CreateTailwindCssContentPathsJsonFile(
+                tailwindContentPathsJsonFilePath);
+        }
+
+        public async Task CreateTailwindAllContentPathsJsonFile(ProjectContext projectContext)
+        {
+            var tailwindContentPathsJsonFilePath = Instances.ProjectPathsOperator.GetTailwindAllContentPathsJsonFilePath(
+                projectContext.ProjectFilePath);
+
+            // Initially, just reuse the project's own content paths.
+            // A separate script will be required to update all Tailwind CSS content paths.
+            await Instances.CodeFileGenerationOperations.CreateTailwindCssContentPathsJsonFile(
+                tailwindContentPathsJsonFilePath);
+        }
+
+        public async Task CreatePackageJsonFile(ProjectContext projectContext)
 		{
             var packageJsonFilePath = Instances.ProjectPathsOperator.GetPackageJsonFilePath(
                 projectContext.ProjectFilePath);
@@ -240,7 +388,17 @@ namespace R5T.F0084
 				projectContext.ProjectName);
 		}
 
-		public async Task SetupProjectFileSystem_Library(
+        public async Task CreateLaunchSettingsJsonFile_WebServer(ProjectContext projectContext)
+        {
+            var launchSettingsJsonFilePath = Instances.ProjectPathsOperator.GetLaunchSettingsJsonFilePath(
+                projectContext.ProjectFilePath);
+
+            await Instances.CodeFileGenerationOperations.CreateLaunchSettings_WebServer(
+                launchSettingsJsonFilePath,
+                projectContext.ProjectName);
+        }
+
+        public async Task SetupProjectFileSystem_Library(
 			ProjectContext projectContext)
 		{
 			await this.SetupProjectFileSystem_Initial(projectContext);
@@ -321,6 +479,26 @@ namespace R5T.F0084
                 projectContext.ProjectFilePath);
 
             await F0083.CodeFileGenerationOperations.Instance.CreateProgramFile_WebServerForBlazorClient(
+                programCodeFilePath,
+                projectContext.ProjectDefaultNamespaceName);
+        }
+
+        public async Task CreateStaticRazorComponentsHostFile(ProjectContext projectContext)
+        {
+            var hostRazorFilePath = F0052.ProjectPathsOperator.Instance.GetStaticRazorComponentsHostFilePath(
+                projectContext.ProjectFilePath);
+
+            await F0083.CodeFileGenerationOperations.Instance.CreateStaticRazorComponentsHost(
+                hostRazorFilePath,
+                projectContext.ProjectDefaultNamespaceName);
+        }
+
+        public async Task CreateProgramFile_WebStaticRazorComponents(ProjectContext projectContext)
+        {
+            var programCodeFilePath = F0052.ProjectPathsOperator.Instance.GetProgramFilePath(
+                projectContext.ProjectFilePath);
+
+            await F0083.CodeFileGenerationOperations.Instance.CreateProgramFile_WebStaticRazorComponents(
                 programCodeFilePath,
                 projectContext.ProjectDefaultNamespaceName);
         }

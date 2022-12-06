@@ -42,7 +42,18 @@ namespace R5T.F0084
 				ProjectFileSystemOperations.Instance.SetupProjectFileSystem_Console);
 		}
 
-		public async Task CreateNewProject_WebServerForBlazorClient(
+        public async Task CreateNewProject_RazorClassLibrary(
+            string projectFilePath,
+            string projectDescription)
+        {
+            await ProjectOperator.Instance.CreateNewProject(
+                projectFilePath,
+                projectDescription,
+                F0081.ProjectFileOperations.Instance.CreateNewProjectFile_RazorClassLibrary,
+                ProjectFileSystemOperations.Instance.SetupProjectFileSystem_RazorClassLibrary);
+        }
+
+        public async Task CreateNewProject_WebServerForBlazorClient(
 			string projectFilePath,
 			string projectDescription)
 		{
@@ -52,6 +63,17 @@ namespace R5T.F0084
 				F0081.ProjectFileOperations.Instance.CreateNewProjectFile_WebServerForBlazorClient,
 				ProjectFileSystemOperations.Instance.SetupProjectFileSystem_WebServerForBlazorClient);
 		}
+
+        public async Task CreateNewProject_WebStaticRazorComponents(
+            string projectFilePath,
+            string projectDescription)
+        {
+            await ProjectOperator.Instance.CreateNewProject(
+                projectFilePath,
+                projectDescription,
+                F0081.ProjectFileOperations.Instance.CreateNewProjectFile_WebStaticRazorComponents,
+                ProjectFileSystemOperations.Instance.SetupProjectFileSystem_WebStaticRazorComponents);
+        }
 
         public async Task CreateNewProject_WebBlazorClient(
             string projectFilePath,

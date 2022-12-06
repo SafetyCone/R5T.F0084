@@ -15,11 +15,8 @@
     <RepositoryUrl>https://github.com/SafetyCone/R5T.F0084.git</RepositoryUrl>
   </PropertyGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\..\R5T.F0020\source\R5T.F0020\R5T.F0020.csproj" />
     <ProjectReference Include="..\..\..\R5T.F0052\source\R5T.F0052\R5T.F0052.csproj" />
     <ProjectReference Include="..\..\..\R5T.F0081\source\R5T.F0081\R5T.F0081.csproj" />
     <ProjectReference Include="..\..\..\R5T.F0083\source\R5T.F0083\R5T.F0083.csproj" />
-    <ProjectReference Include="..\..\..\R5T.T0142\source\R5T.T0142\R5T.T0142.csproj" />
-    <ProjectReference Include="..\..\..\R5T.Z0018.Private\source\R5T.Z0018\R5T.Z0018.csproj" />
   </ItemGroup>
 </Project>
