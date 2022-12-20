@@ -1,10 +1,15 @@
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
+using System.Xml.Linq;
 
+using R5T.F0000;
+using R5T.F0081;
 using R5T.T0132;
+using R5T.T0153;
 
 using R5T.F0084.T001;
-using R5T.F0084.T002;
 
 
 namespace R5T.F0084
@@ -12,31 +17,122 @@ namespace R5T.F0084
 	[FunctionalityMarker]
 	public partial interface IProjectOperator : IFunctionalityMarker
 	{
-        public async Task CreateNewProject(
-            string projectFilePath,
-            Func<string, Task> projectFileGenerator,
-            Func<string, Task> projectGenerator)
+        public async Task CreateProject(
+            ProjectContext projectContext,
+            params Func<ProjectContext, Task>[] projectActions)
         {
-            await projectFileGenerator(projectFilePath);
-
-            await projectGenerator(projectFilePath);
+            await ActionOperator.Instance.Run(
+                projectContext,
+                projectActions);
         }
 
-        public async Task<ProjectContext> CreateNewProject(
+        public async Task CreateProject(
+            ProjectContext projectContext,
+            IEnumerable<Func<ProjectContext, Task>> projectActions)
+        {
+            await ActionOperator.Instance.Run(
+                projectContext,
+                projectActions);
+        }
+
+        public async Task CreateProject(
+            ProjectContext projectContext,
+            Func<XElement> projectElementConstructor,
+            IEnumerable<Func<ProjectContext, Task>> projectActions)
+        {
+            await this.CreateProject(
+                projectContext,
+                projectActions.Prepend(
+                    projectContext => ProjectFileOperator.Instance.CreateProjectFile(
+                        projectContext.ProjectFilePath,
+                        projectElementConstructor)));
+        }
+
+        public async Task CreateProject(
+            ProjectContext projectContext,
+            Func<string, Task> projectFileConstructor,
+            IEnumerable<Func<ProjectContext, Task>> projectActions)
+        {
+            await this.CreateProject(
+                projectContext,
+                projectActions.Prepend(
+                    projectContext => projectFileConstructor(
+                        projectContext.ProjectFilePath)));
+        }
+
+        public async Task CreateProject(
             string projectFilePath,
             string projectDescription,
-            Func<string, Task> projectFileGenerator,
-            Func<ProjectContext, Task> projectGenerator)
+            Func<string, Task> projectFileConstructor,
+            IEnumerable<Func<ProjectContext, Task>> projectActions)
         {
-            await projectFileGenerator(projectFilePath);
-
             var projectContext = ProjectContextOperator.Instance.GetProjectContext(
                 projectFilePath,
                 projectDescription);
 
-            await projectGenerator(projectContext);
+            await this.CreateProject(
+                projectContext,
+                projectFileConstructor,
+                projectActions);
+        }
 
-            return projectContext;
+        public async Task CreateProject(
+            string projectFilePath,
+            string projectDescription,
+            Func<string, Task> projectFileConstructor,
+            params Func<ProjectContext, Task>[] projectActions)
+        {
+            await this.CreateProject(
+                projectFilePath,
+                projectDescription,
+                projectFileConstructor,
+                projectActions.AsEnumerable());
+        }
+
+        public async Task CreateProject(
+            string projectFilePath,
+            string projectDescription,
+            Func<string, Task> projectFileConstructor,
+            Func<IEnumerable<Func<ProjectContext, Task>>> projectActionsConstructor)
+        {
+            var projectActions = projectActionsConstructor();
+
+            await this.CreateProject(
+                projectFilePath,
+                projectDescription,
+                projectFileConstructor,
+                projectActions);
+        }
+
+        public async Task CreateProject(
+            string projectFilePath,
+            string projectDescription,
+            Func<string, IEnumerable<Action<XElement>>> projectElementActionsConstructor,
+            Func<IEnumerable<Func<ProjectContext, Task>>> projectActionsConstructor)
+        {
+            await this.CreateProject(
+                projectFilePath,
+                projectDescription,
+                async projectFilePath =>
+                {
+                    await ProjectFileOperator.Instance.CreateProjectFile(
+                        projectFilePath,
+                        projectElementActionsConstructor);
+                },
+                projectActionsConstructor);
+        }
+
+        public async Task CreateProject(
+            ProjectContext projectContext,
+            Func<string, Task> projectFileConstructor,
+            Func<IEnumerable<Func<ProjectContext, Task>>> projectActionsConstructor)
+        {
+            var projectActions = projectActionsConstructor();
+
+            await this.CreateProject(
+                projectContext,
+                projectFileConstructor,
+                projectActions);
         }
 
         public async Task<string> CreateStronglyTypedType(

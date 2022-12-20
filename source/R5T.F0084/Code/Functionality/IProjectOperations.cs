@@ -1,7 +1,12 @@
 using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 
+using R5T.F0083;
+using R5T.L0026.T000;
 using R5T.T0132;
+using R5T.T0153;
+using R5T.T0153.N000;
 
 
 namespace R5T.F0084
@@ -9,81 +14,293 @@ namespace R5T.F0084
 	[FunctionalityMarker]
 	public partial interface IProjectOperations : IFunctionalityMarker
 	{
-		public async Task CreateNewProject_WebApplicationServer(
-			string projectFilePath,
-			string projectDescription)
-		{
-			await ProjectOperator.Instance.CreateNewProject(
-				projectFilePath,
-				projectDescription,
-				F0081.ProjectFileOperations.Instance.CreateNewProjectFile_Web,
-				ProjectFileSystemOperations.Instance.SetupProjectFileSystem_Library);
-		}
-
-		public async Task CreateNewProject_Library(
-			string projectFilePath,
-			string projectDescription)
-		{
-			await ProjectOperator.Instance.CreateNewProject(
-				projectFilePath,
-				projectDescription,
-				F0081.ProjectFileOperations.Instance.CreateNewProjectFile_Library,
-				ProjectFileSystemOperations.Instance.SetupProjectFileSystem_Library);
-		}
-
-        public async Task CreateNewProject_Console(
-			string projectFilePath,
-			string projectDescription)
-		{
-			await ProjectOperator.Instance.CreateNewProject(
-				projectFilePath,
-				projectDescription,
-				F0081.ProjectFileOperations.Instance.CreateNewProjectFile_Console,
-				ProjectFileSystemOperations.Instance.SetupProjectFileSystem_Console);
-		}
-
-        public async Task CreateNewProject_RazorClassLibrary(
+        public async Task<WinFormContext> CreateWinFormInProject(
             string projectFilePath,
-            string projectDescription)
+            string formName)
         {
-            await ProjectOperator.Instance.CreateNewProject(
+            var winFormContext = await Instances.CodeFileOperations.CreateWinForm(
                 projectFilePath,
-                projectDescription,
-                F0081.ProjectFileOperations.Instance.CreateNewProjectFile_RazorClassLibrary,
-                ProjectFileSystemOperations.Instance.SetupProjectFileSystem_RazorClassLibrary);
+                formName);
+
+            return winFormContext;
         }
 
-        public async Task CreateNewProject_WebServerForBlazorClient(
+        public async Task CreateWinFormInProject(
+            WinFormContext winFormContext)
+        {
+            await Instances.CodeFileOperations.CreateWinForm(
+                winFormContext);
+        }
+
+        public async Task<Dictionary<string, InstanceTypeContext>> CreateInstancesInProject(
+            string projectFilePath,
+            InstanceTypeInformation instanceType,
+            IEnumerable<string> instanceTypeNameStems)
+        {
+            var output = new Dictionary<string, InstanceTypeContext>();
+
+            foreach (var instanceTypeNameStem in instanceTypeNameStems)
+            {
+                var instanceTypeContext = F0089.InstanceTypeContextOperations.Instance.GetInstanceTypeContext(
+                    projectFilePath,
+                    instanceTypeNameStem,
+                    instanceType);
+
+                await this.CreateInstanceInProject(instanceTypeContext);
+
+                output.Add(instanceTypeNameStem, instanceTypeContext);
+            }
+
+            return output;
+        }
+
+        public async Task CreateInstanceInProject(
+            InstanceTypeContext instanceTypeContext)
+        {
+            // Safety checks.
+            F0000.FileSystemOperator.Instance.VerifyFileDoesNotExists(instanceTypeContext.InterfaceCodeFilePath);
+            // Don't care about the class.
+
+            await CodeFileGenerationOperations.Instance.CreateInstanceInterfaceCodeFile(
+                instanceTypeContext.InterfaceCodeFilePath,
+                instanceTypeContext.NamespaceName,
+                instanceTypeContext.InterfaceTypeName,
+                instanceTypeContext.MarkerAttributeTypeName,
+                instanceTypeContext.MarkerInterfaceTypeName,
+                new[]
+                {
+                        instanceTypeContext.MarkerAttributeNamespaceName,
+                        instanceTypeContext.MarkerInterfaceNamespaceName,
+                });
+
+            await CodeFileGenerationOperations.Instance.CreateInstanceClassCodeFile(
+                instanceTypeContext.ClassCodeFilePath,
+                instanceTypeContext.NamespaceName,
+                instanceTypeContext.ClassTypeName,
+                instanceTypeContext.InterfaceTypeName);
+        }
+
+        public async Task<RazorComponentContext> CreateRazorComponentInProject(
+            string projectFilePath,
+            string componentName)
+        {
+            var razorComponentContext = F0089.CodeFileContextOperations.Instance.GetRazorComponentContext(
+                projectFilePath,
+                componentName);
+
+            await this.CreateRazorComponentInProject(
+                razorComponentContext);
+
+            return razorComponentContext;
+        }
+
+        public async Task CreateRazorComponentInProject(
+            RazorComponentContext razorComponentContext)
+        {
+            // Safety checks.
+            F0000.FileSystemOperator.Instance.VerifyFileDoesNotExists(razorComponentContext.RazorFilePath);
+            F0000.FileSystemOperator.Instance.VerifyFileDoesNotExists(razorComponentContext.CodeBehindFilePath);
+
+            // Run.
+            await CodeFileGenerationOperations.Instance.CreateRazorComponentMarkupFile(
+                razorComponentContext.RazorFilePath,
+                razorComponentContext.NamespaceName);
+
+            await CodeFileGenerationOperations.Instance.CreateRazorComponentCodeBehindFile(
+                razorComponentContext.CodeBehindFilePath,
+                razorComponentContext.NamespaceName,
+                razorComponentContext.Name);
+        }
+
+        public async Task CreateInstancesClassInProject(
+            string projectFilePath)
+        {
+            var namespaceName = F0040.F000.ProjectNamespacesOperator.Instance.GetDefaultNamespaceName_FromProjectFilePath(projectFilePath);
+
+            var instancesCodeFilePath = F0052.ProjectPathsOperator.Instance.GetInstancesFilePath(projectFilePath);
+
+            // Safety check.
+            F0000.FileSystemOperator.Instance.VerifyFileDoesNotExists(instancesCodeFilePath);
+
+            await CodeFileGenerationOperations.Instance.CreateInstancesClass(
+                instancesCodeFilePath,
+                namespaceName);
+        }
+
+		/// <inheritdoc cref="CreateClassInProject(TypeContext)" path="/summary"/>
+		/// <returns>The C# code file path of the class.</returns>
+		public async Task<string> CreateClassInProject(
+			string projectFilePath,
+			string className)
+		{
+            var namespaceName = F0040.F000.ProjectNamespacesOperator.Instance.GetDefaultNamespaceName_FromProjectFilePath(projectFilePath);
+
+            var classFilePath = F0052.ProjectPathsOperator.Instance.GetClassCodeFilePath(
+                projectFilePath,
+                className);
+
+			// Safety check.
+			F0000.FileSystemOperator.Instance.VerifyFileDoesNotExists(classFilePath);
+
+			// Now run.
+            await CodeFileGenerationOperations.Instance.CreateClassCSharpFile(
+                classFilePath,
+                namespaceName,
+                className);
+
+			return classFilePath;
+        }
+
+        /// <summary>
+        /// Creates a class in a C# code file in a project.
+        /// </summary>
+        public async Task CreateClassInProject(
+            TypeContext typeContext)
+        {
+            // Safety check.
+            F0000.FileSystemOperator.Instance.VerifyFileDoesNotExists(
+                typeContext.CodeFilePath);
+
+            // Now run.
+            await CodeFileGenerationOperations.Instance.CreateClassCSharpFile(
+                typeContext.CodeFilePath,
+                typeContext.NamespaceName,
+                typeContext.TypeName);
+        }
+
+        /// <summary>
+        /// Creates an interface in a C# code file in a project.
+        /// </summary>
+        public async Task CreateInterfaceInProject(
+            TypeContext typeContext)
+        {
+            // Safety check.
+            F0000.FileSystemOperator.Instance.VerifyFileDoesNotExists(
+                typeContext.CodeFilePath);
+
+            // Now run.
+            await CodeFileGenerationOperations.Instance.CreateInterfaceCSharpFile(
+                typeContext.CodeFilePath,
+                typeContext.NamespaceName,
+                typeContext.TypeName);
+        }
+
+        public async Task NewProject_WebApplicationServer(
 			string projectFilePath,
 			string projectDescription)
 		{
-			await ProjectOperator.Instance.CreateNewProject(
+			await ProjectOperator.Instance.CreateProject(
 				projectFilePath,
 				projectDescription,
-				F0081.ProjectFileOperations.Instance.CreateNewProjectFile_WebServerForBlazorClient,
-				ProjectFileSystemOperations.Instance.SetupProjectFileSystem_WebServerForBlazorClient);
+				F0081.ProjectFileOperations.Instance.NewProjectFile_Web,
+                ProjectSetupOperations.Instance.SetupProject_Library);
 		}
 
-        public async Task CreateNewProject_WebStaticRazorComponents(
-            string projectFilePath,
-            string projectDescription)
+		public async Task NewProject_Library(
+			string projectFilePath,
+			string projectDescription)
+		{
+			await ProjectOperator.Instance.CreateProject(
+				projectFilePath,
+				projectDescription,
+				F0081.ProjectFileOperations.Instance.NewProjectFile_Library,
+                ProjectSetupOperations.Instance.SetupProject_Library);
+		}
+
+        public Task NewProject_Library(
+            ProjectContext projectContext)
         {
-            await ProjectOperator.Instance.CreateNewProject(
-                projectFilePath,
-                projectDescription,
-                F0081.ProjectFileOperations.Instance.CreateNewProjectFile_WebStaticRazorComponents,
-                ProjectFileSystemOperations.Instance.SetupProjectFileSystem_WebStaticRazorComponents);
+            return ProjectOperator.Instance.CreateProject(
+                projectContext,
+                F0081.ProjectFileOperations.Instance.NewProjectFile_Library,
+                ProjectSetupOperations.Instance.SetupProject_Library);
         }
 
-        public async Task CreateNewProject_WebBlazorClient(
+        public async Task NewProject_Console(
+			string projectFilePath,
+			string projectDescription)
+		{
+			await ProjectOperator.Instance.CreateProject(
+				projectFilePath,
+				projectDescription,
+				F0081.ProjectFileOperations.Instance.NewProjectFile_Console,
+                ProjectSetupOperations.Instance.SetupProject_Console);
+		}
+
+        public async Task NewProject_DeployScripts(
+            string projectFilePath,
+            string projectDescription,
+            string targetProjectName)
+        {
+            await ProjectOperator.Instance.CreateProject(
+                projectFilePath,
+                projectDescription,
+                F0081.ProjectFileOperations.Instance.NewProjectFile_DeployScripts,
+                ProjectSetupOperations.Instance.SetupProject_DeployScripts(targetProjectName));
+        }
+
+        public async Task NewProject_RazorClassLibrary(
             string projectFilePath,
             string projectDescription)
         {
-            await ProjectOperator.Instance.CreateNewProject(
+            await ProjectOperator.Instance.CreateProject(
                 projectFilePath,
                 projectDescription,
-                F0081.ProjectFileOperations.Instance.CreateNewProjectFile_WebBlazorClient,
-                ProjectFileSystemOperations.Instance.SetupProjectFileSystem_WebBlazorClient);
+                F0081.ProjectFileOperations.Instance.NewProjectFile_RazorClassLibrary,
+                ProjectSetupOperations.Instance.SetupProject_RazorClassLibrary);
+        }
+
+        public Task NewProject_RazorClassLibrary(
+            ProjectContext projectContext)
+        {
+            return ProjectOperator.Instance.CreateProject(
+                projectContext,
+                F0081.ProjectFileOperations.Instance.NewProjectFile_RazorClassLibrary,
+                ProjectSetupOperations.Instance.SetupProject_RazorClassLibrary);
+        }
+
+        public async Task NewProject_WebServerForBlazorClient(
+			string projectFilePath,
+			string projectDescription)
+		{
+			await ProjectOperator.Instance.CreateProject(
+				projectFilePath,
+				projectDescription,
+				F0081.ProjectFileOperations.Instance.NewProjectFile_WebServerForBlazorClient,
+                ProjectSetupOperations.Instance.SetupProject_WebServerForBlazorClient);
+		}
+
+        public async Task NewProject_WebStaticRazorComponents(
+            string projectFilePath,
+            string projectDescription)
+        {
+            await ProjectOperator.Instance.CreateProject(
+                projectFilePath,
+                projectDescription,
+                F0081.ProjectFileOperations.Instance.NewProjectFile_WebStaticRazorComponents,
+                ProjectSetupOperations.Instance.SetupProject_WebStaticRazorComponents);
+        }
+
+        public async Task NewProject_WindowsFormsApplication(
+            string projectFilePath,
+            string projectDescription)
+        {
+            await ProjectOperator.Instance.CreateProject(
+                projectFilePath,
+                projectDescription,
+                F0081.ProjectFileOperations.Instance.NewProjectFile_WindowsFormsApplication,
+                ProjectSetupOperations.Instance.SetupProject_WindowsFormsApplication);
+        }
+
+        public async Task NewProject_WebBlazorClient(
+            string projectFilePath,
+            string projectDescription)
+        {
+            await ProjectOperator.Instance.CreateProject(
+                projectFilePath,
+                projectDescription,
+                F0081.ProjectFileOperations.Instance.NewProjectFile_WebBlazorClient,
+                ProjectSetupOperations.Instance.SetupProject_WebBlazorClient);
         }
     }
 }
