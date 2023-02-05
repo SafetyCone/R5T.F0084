@@ -270,6 +270,17 @@ namespace R5T.F0084
                 ProjectSetupOperations.Instance.SetupProject_WebServerForBlazorClient);
 		}
 
+        public async Task NewProject_Blog(
+            string projectFilePath,
+            string projectDescription)
+        {
+            await ProjectOperator.Instance.CreateProject(
+                projectFilePath,
+                projectDescription,
+                F0081.ProjectFileOperations.Instance.NewProjectFile_Blog,
+                ProjectSetupOperations.Instance.SetupProject_Blog);
+        }
+
         public async Task NewProject_WebStaticRazorComponents(
             string projectFilePath,
             string projectDescription)

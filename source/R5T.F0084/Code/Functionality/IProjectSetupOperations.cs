@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-using R5T.F0078;
 using R5T.T0132;
 using R5T.T0153;
 
@@ -90,6 +89,17 @@ namespace R5T.F0084
             return output;
         }
 
+        public IEnumerable<Func<ProjectContext, Task>> SetupProject_Blog()
+        {
+            var output = this.SetupProject_WebStaticRazorComponents()
+                .Append(
+                    FileSystem.AddTailwindCssTypograpy,
+                    FileSystem.CreateTailwindConfigJsFileWithTypography)
+                ;
+
+            return output;
+        }
+
         public IEnumerable<Func<ProjectContext, Task>> SetupProject_WebStaticRazorComponents()
         {
             var output = this.SetupProject_Initial()
@@ -107,18 +117,11 @@ namespace R5T.F0084
                     // For some reason, the WebApplication.CreateBuilder() call fails if there is no wwwroot directory.
                     FileSystem.CreateWwwRootDirectory,
                     FileSystem.CreatePackageJsonFile,
+                    FileSystem.CreateTailwindAllContentPathsJsonFile,
                     FileSystem.CreateTailwindContentPathsJsonFile,
                     FileSystem.CreateTailwindConfigJsFile,
                     FileSystem.CreateTailwindCssFile,
-                    async projectContext =>
-                    {
-                        await CliWrap.Cli.Wrap("npm")
-                            .WithArguments("install -y")
-                            .WithWorkingDirectory(projectContext.ProjectDirectoryPath)
-                            .WithConsoleOutput()
-                            .WithConsoleError()
-                            .ExecuteAsync();
-                    })
+                    FileSystem.RunNpmInstall)
                 ;
 
             return output;
@@ -142,7 +145,10 @@ namespace R5T.F0084
                     FileSystem.CreateAppRazorFile_WebBlazorClient,
                     FileSystem.CreateImportsRazorFile_WebBlazorClient_Main,
                     FileSystem.CreateMainLayoutRazorFile_WebBlazorClient,
-                    FileSystem.CreateIndexRazorFile_WebBlazorClient)
+                    FileSystem.CreateIndexRazorFile_WebBlazorClient,
+                    FileSystem.CreateTailwindContentPathsJsonFile,
+                    FileSystem.CreateTailwindAllContentPathsJsonFile,
+                    FileSystem.RunNpmInstall)
                 ;
 
             return output;

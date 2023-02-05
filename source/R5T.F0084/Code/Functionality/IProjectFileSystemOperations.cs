@@ -1,5 +1,9 @@
 using System;
 using System.Threading.Tasks;
+
+using Newtonsoft.Json.Linq;
+
+using R5T.F0078;
 using R5T.F0089;
 using R5T.L0026;
 using R5T.T0132;
@@ -11,6 +15,22 @@ namespace R5T.F0084
 	[FunctionalityMarker]
 	public partial interface IProjectFileSystemOperations : IFunctionalityMarker
 	{
+        public async Task AddTailwindCssTypograpy(ProjectContext projectContext)
+        {
+            // Add @tailwindcss/typography, 0.5.4 to the package.json file.
+            var packageJsonFilePath = Instances.ProjectPathsOperator.GetPackageJsonFilePath(projectContext.ProjectFilePath);
+
+            var packageJson = await Instances.JsonOperator.Deserialize(packageJsonFilePath);
+
+            var devDependencies = packageJson["devDependencies"] as JObject;
+
+            devDependencies.Add("@tailwindcss/typography", "0.5.4");
+
+            Instances.JsonOperator.Serialize_Synchronous(
+                packageJsonFilePath,
+                packageJson);
+        }
+
         public async Task CreateExampleComponent(ProjectContext projectContext)
         {
             var exampleComponentRazorFilePath = Instances.ProjectPathsOperator.GetExampleComponentRazorFilePath(
@@ -155,6 +175,15 @@ namespace R5T.F0084
                 projectContext.ProjectFilePath);
 
             await Instances.CodeFileGenerationOperations.CreateTailwindConfigJsFile(
+                tailwindConfigJsFilePath);
+        }
+
+        public async Task CreateTailwindConfigJsFileWithTypography(ProjectContext projectContext)
+        {
+            var tailwindConfigJsFilePath = Instances.ProjectPathsOperator.GetTailwindConfigJsFilePath(
+                projectContext.ProjectFilePath);
+
+            await Instances.CodeFileGenerationOperations.CreateTailwindConfigJsWithTypographyFile(
                 tailwindConfigJsFilePath);
         }
 
@@ -385,5 +414,15 @@ namespace R5T.F0084
 
 			return Task.CompletedTask;
 		}
+
+        public async Task RunNpmInstall(ProjectContext projectContext)
+        {
+            await CliWrap.Cli.Wrap("npm")
+                .WithArguments("install -y")
+                .WithWorkingDirectory(projectContext.ProjectDirectoryPath)
+                .WithConsoleOutput()
+                .WithConsoleError()
+                .ExecuteAsync();
+        }
 	}
 }
