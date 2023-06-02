@@ -30,7 +30,7 @@ namespace R5T.F0084
                                 projectContext.ProjectFilePath),
                             "Placeholder.html");
 
-                        F0000.FileOperator.Instance.WriteText(
+                        F0000.FileOperator.Instance.WriteText_Synchronous(
                             wwwRootPlaceholderFilePath,
                             "Placeholder text...");
 
