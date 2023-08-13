@@ -47,7 +47,8 @@ namespace R5T.F0084
                 projectContext.ProjectFilePath);
 
             await Instances.CodeFileGenerationOperations.CreateIndexRazorFile_WebBlazorClient(
-                mainImportsRazorFilePath);
+                mainImportsRazorFilePath,
+                projectContext.ProjectDefaultNamespaceName);
         }
 
         public async Task CreateMainLayoutRazorFile_WebBlazorClient(ProjectContext projectContext)
