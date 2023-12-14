@@ -114,7 +114,7 @@ namespace R5T.F0084
 			var pagesDirectoryPath = Instances.ProjectPathsOperator.GetPagesDirectoryPath(
 				projectContext.ProjectFilePath);
 
-			Instances.FileSystemOperator.CreateDirectory_OkIfAlreadyExists(pagesDirectoryPath);
+			Instances.FileSystemOperator.Create_Directory_OkIfAlreadyExists(pagesDirectoryPath);
 
 			return Task.CompletedTask;
 		}
@@ -124,7 +124,7 @@ namespace R5T.F0084
             var sharedDirectoryPath = Instances.ProjectPathsOperator.GetSharedDirectoryPath(
                 projectContext.ProjectFilePath);
 
-            Instances.FileSystemOperator.CreateDirectory_OkIfAlreadyExists(sharedDirectoryPath);
+            Instances.FileSystemOperator.Create_Directory_OkIfAlreadyExists(sharedDirectoryPath);
 
             return Task.CompletedTask;
         }
@@ -134,7 +134,7 @@ namespace R5T.F0084
             var componentsDirectoryPath = Instances.ProjectPathsOperator.GetComponentsDirectoryPath(
                 projectContext.ProjectFilePath);
 
-            Instances.FileSystemOperator.CreateDirectory_OkIfAlreadyExists(componentsDirectoryPath);
+            Instances.FileSystemOperator.Create_Directory_OkIfAlreadyExists(componentsDirectoryPath);
 
             return Task.CompletedTask;
         }
@@ -156,7 +156,7 @@ namespace R5T.F0084
 			var wwwRootDirectoryPath = Instances.ProjectPathsOperator.GetWwwRootDirectoryPath(
 				projectContext.ProjectFilePath);
 
-			Instances.FileSystemOperator.CreateDirectory_OkIfAlreadyExists(wwwRootDirectoryPath);
+			Instances.FileSystemOperator.Create_Directory_OkIfAlreadyExists(wwwRootDirectoryPath);
 
 			return Task.CompletedTask;
 		}
@@ -264,7 +264,7 @@ namespace R5T.F0084
 			var propertiesDirectoryPath = Instances.ProjectPathsOperator.GetPropertiesDirectoryPath(
 				projectContext.ProjectFilePath);
 
-			Instances.FileSystemOperator.CreateDirectory_OkIfAlreadyExists(propertiesDirectoryPath);
+			Instances.FileSystemOperator.Create_Directory_OkIfAlreadyExists(propertiesDirectoryPath);
 
 			return Task.CompletedTask;
 		}
@@ -274,7 +274,7 @@ namespace R5T.F0084
 			var codeDirectoryPath = F0052.ProjectPathsOperator.Instance.GetCodeDirectoryPath(
 				projectContext.ProjectFilePath);
 
-			F0000.FileSystemOperator.Instance.CreateDirectory_OkIfAlreadyExists(codeDirectoryPath);
+			F0000.FileSystemOperator.Instance.Create_Directory_OkIfAlreadyExists(codeDirectoryPath);
 
 			return Task.CompletedTask;
 		}
