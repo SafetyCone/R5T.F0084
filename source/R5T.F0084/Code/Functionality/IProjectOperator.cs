@@ -216,7 +216,7 @@ namespace R5T.F0084
         {
             var projectDirectoryName = F0052.ProjectDirectoryNameOperator.Instance.GetProjectDirectoryName_FromProjectName(projectName);
 
-            var projectDirectoryPath = F0002.PathOperator.Instance.GetDirectoryPath(
+            var projectDirectoryPath = F0002.PathOperator.Instance.Get_DirectoryPath(
                 parentDirectoryPath,
                 projectDirectoryName);
 

@@ -25,7 +25,7 @@ namespace R5T.F0084
                     projectContext =>
                     {
                         // Create something in the wwwroot directory so it is not empty (to make sure the directory is not hidden in the Visual Studio solution explorer).
-                        var wwwRootPlaceholderFilePath = F0002.PathOperator.Instance.GetFilePath(
+                        var wwwRootPlaceholderFilePath = F0002.PathOperator.Instance.Get_FilePath(
                             Instances.ProjectPathsOperator.GetWwwRootDirectoryPath(
                                 projectContext.ProjectFilePath),
                             "Placeholder.html");
