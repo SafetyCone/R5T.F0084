@@ -58,7 +58,7 @@ namespace R5T.F0084
             InstanceTypeContext instanceTypeContext)
         {
             // Safety checks.
-            F0000.FileSystemOperator.Instance.VerifyFileDoesNotExists(instanceTypeContext.InterfaceCodeFilePath);
+            F0000.FileSystemOperator.Instance.Verify_File_DoesNotExist(instanceTypeContext.InterfaceCodeFilePath);
             // Don't care about the class.
 
             await CodeFileGenerationOperations.Instance.CreateInstanceInterfaceCodeFile(
@@ -67,11 +67,10 @@ namespace R5T.F0084
                 instanceTypeContext.InterfaceTypeName,
                 instanceTypeContext.MarkerAttributeTypeName,
                 instanceTypeContext.MarkerInterfaceTypeName,
-                new[]
-                {
-                        instanceTypeContext.MarkerAttributeNamespaceName,
-                        instanceTypeContext.MarkerInterfaceNamespaceName,
-                });
+                [
+                    instanceTypeContext.MarkerAttributeNamespaceName,
+                    instanceTypeContext.MarkerInterfaceNamespaceName,
+                ]);
 
             await CodeFileGenerationOperations.Instance.CreateInstanceClassCodeFile(
                 instanceTypeContext.ClassCodeFilePath,
@@ -98,8 +97,8 @@ namespace R5T.F0084
             RazorComponentContext razorComponentContext)
         {
             // Safety checks.
-            F0000.FileSystemOperator.Instance.VerifyFileDoesNotExists(razorComponentContext.RazorFilePath);
-            F0000.FileSystemOperator.Instance.VerifyFileDoesNotExists(razorComponentContext.CodeBehindFilePath);
+            F0000.FileSystemOperator.Instance.Verify_File_DoesNotExist(razorComponentContext.RazorFilePath);
+            F0000.FileSystemOperator.Instance.Verify_File_DoesNotExist(razorComponentContext.CodeBehindFilePath);
 
             // Run.
             await CodeFileGenerationOperations.Instance.CreateRazorComponentMarkupFile(
@@ -115,12 +114,12 @@ namespace R5T.F0084
         public async Task CreateInstancesClassInProject(
             string projectFilePath)
         {
-            var namespaceName = F0040.F000.ProjectNamespacesOperator.Instance.GetDefaultNamespaceName_FromProjectFilePath(projectFilePath);
+            var namespaceName = F0040.F000.ProjectNamespacesOperator.Instance.Get_DefaultNamespaceName_FromProjectFilePath(projectFilePath);
 
             var instancesCodeFilePath = F0052.ProjectPathsOperator.Instance.GetInstancesFilePath(projectFilePath);
 
             // Safety check.
-            F0000.FileSystemOperator.Instance.VerifyFileDoesNotExists(instancesCodeFilePath);
+            F0000.FileSystemOperator.Instance.Verify_File_DoesNotExist(instancesCodeFilePath);
 
             await CodeFileGenerationOperations.Instance.CreateInstancesClass(
                 instancesCodeFilePath,
@@ -133,14 +132,14 @@ namespace R5T.F0084
 			string projectFilePath,
 			string className)
 		{
-            var namespaceName = F0040.F000.ProjectNamespacesOperator.Instance.GetDefaultNamespaceName_FromProjectFilePath(projectFilePath);
+            var namespaceName = F0040.F000.ProjectNamespacesOperator.Instance.Get_DefaultNamespaceName_FromProjectFilePath(projectFilePath);
 
             var classFilePath = F0052.ProjectPathsOperator.Instance.GetClassCodeFilePath(
                 projectFilePath,
                 className);
 
 			// Safety check.
-			F0000.FileSystemOperator.Instance.VerifyFileDoesNotExists(classFilePath);
+			F0000.FileSystemOperator.Instance.Verify_File_DoesNotExist(classFilePath);
 
 			// Now run.
             await CodeFileGenerationOperations.Instance.CreateClassCSharpFile(
@@ -158,7 +157,7 @@ namespace R5T.F0084
             TypeContext typeContext)
         {
             // Safety check.
-            F0000.FileSystemOperator.Instance.VerifyFileDoesNotExists(
+            F0000.FileSystemOperator.Instance.Verify_File_DoesNotExist(
                 typeContext.CodeFilePath);
 
             // Now run.
@@ -175,7 +174,7 @@ namespace R5T.F0084
             TypeContext typeContext)
         {
             // Safety check.
-            F0000.FileSystemOperator.Instance.VerifyFileDoesNotExists(
+            F0000.FileSystemOperator.Instance.Verify_File_DoesNotExist(
                 typeContext.CodeFilePath);
 
             // Now run.

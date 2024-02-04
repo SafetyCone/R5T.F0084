@@ -16,7 +16,7 @@ namespace R5T.F0084
 			var projectDirectoryPath = F0052.ProjectPathsOperator.Instance.GetProjectDirectoryPath(projectFilePath);
 
 			var projectName = F0052.ProjectPathsOperator.Instance.GetProjectName(projectFilePath);
-			var projectDefaultNamespaceName = F0040.F000.ProjectNamespacesOperator.Instance.GetDefaultNamespaceName_FromProjectName(projectName);
+			var projectDefaultNamespaceName = F0040.F000.ProjectNamespacesOperator.Instance.Get_DefaultNamespaceName_FromProjectName(projectName);
 
 			var output = new ProjectContext
 			{

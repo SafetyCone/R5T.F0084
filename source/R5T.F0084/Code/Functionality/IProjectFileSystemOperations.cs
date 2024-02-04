@@ -3,7 +3,7 @@ using System.Threading.Tasks;
 
 using Newtonsoft.Json.Linq;
 
-using R5T.F0078;
+using R5T.F0078.Extensions;
 using R5T.F0089;
 using R5T.L0026;
 using R5T.T0132;
@@ -338,7 +338,7 @@ namespace R5T.F0084
 			var programCodeFilePath = F0052.ProjectPathsOperator.Instance.GetProgramFilePath(
 				projectContext.ProjectFilePath);
 
-			await F0083.CodeFileGenerationOperations.Instance.CreateProgramFile_Console(
+			await F0083.CodeFileGenerationOperations.Instance.Create_ProgramFile_ForConsole(
 				programCodeFilePath,
 				projectContext.ProjectDefaultNamespaceName);
 		}

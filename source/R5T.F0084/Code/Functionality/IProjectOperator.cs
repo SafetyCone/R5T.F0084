@@ -143,7 +143,7 @@ namespace R5T.F0084
             Func<string, string, string, string, bool, Task> createStronglyTypedTypeCodeFileFunction,
             bool isDraft = false)
         {
-            var projectDefaultNamespaceName = F0040.F000.ProjectNamespacesOperator.Instance.GetDefaultNamespaceName_FromProjectName(projectName);
+            var projectDefaultNamespaceName = F0040.F000.ProjectNamespacesOperator.Instance.Get_DefaultNamespaceName_FromProjectName(projectName);
 
             string stronglyTypedGuidCodeFilePath = default;
 
@@ -180,7 +180,7 @@ namespace R5T.F0084
             Func<string, string, string, string, bool, Task> createStronglyTypedTypeCodeFileFunction,
             bool isDraft = false)
         {
-            var projectDefaultNamespaceName = F0040.F000.ProjectNamespacesOperator.Instance.GetDefaultNamespaceName_FromProjectFilePath(projectFilePath);
+            var projectDefaultNamespaceName = F0040.F000.ProjectNamespacesOperator.Instance.Get_DefaultNamespaceName_FromProjectFilePath(projectFilePath);
 
             string stronglyTypedGuidCodeFilePath = default;
 
@@ -220,7 +220,7 @@ namespace R5T.F0084
                 parentDirectoryPath,
                 projectDirectoryName);
 
-            var projectFilePath = F0052.ProjectPathsOperator.Instance.GetProjectFilePath(
+            var projectFilePath = F0052.ProjectPathsOperator.Instance.Get_ProjectFilePath(
                     projectDirectoryPath,
                     projectName);
 
