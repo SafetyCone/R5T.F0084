@@ -121,7 +121,7 @@ namespace R5T.F0084
             // Safety check.
             F0000.FileSystemOperator.Instance.Verify_File_DoesNotExist(instancesCodeFilePath);
 
-            await CodeFileGenerationOperations.Instance.CreateInstancesClass(
+            await CodeFileGenerationOperations.Instance.Create_InstancesFile(
                 instancesCodeFilePath,
                 namespaceName);
         }

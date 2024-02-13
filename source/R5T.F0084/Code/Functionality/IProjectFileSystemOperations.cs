@@ -305,7 +305,7 @@ namespace R5T.F0084
 			var documentationCodeFilePath = F0052.ProjectPathsOperator.Instance.GetDocumentationFilePath(
 				projectContext.ProjectFilePath);
 
-			await F0083.CodeFileGenerationOperations.Instance.CreateDocumentationFile(
+			await F0083.CodeFileGenerationOperations.Instance.Create_DocumentationFile(
 				documentationCodeFilePath,
 				projectContext.ProjectDefaultNamespaceName,
 				projectContext.ProjectDescription);
