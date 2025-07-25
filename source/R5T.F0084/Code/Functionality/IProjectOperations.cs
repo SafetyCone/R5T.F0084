@@ -41,7 +41,7 @@ namespace R5T.F0084
 
             foreach (var instanceTypeNameStem in instanceTypeNameStems)
             {
-                var instanceTypeContext = F0089.InstanceTypeContextOperations.Instance.GetInstanceTypeContext(
+                var instanceTypeContext = Instances.InstanceTypeContextOperations.GetInstanceTypeContext(
                     projectFilePath,
                     instanceTypeNameStem,
                     instanceType);
@@ -58,10 +58,10 @@ namespace R5T.F0084
             InstanceTypeContext instanceTypeContext)
         {
             // Safety checks.
-            F0000.FileSystemOperator.Instance.Verify_File_DoesNotExist(instanceTypeContext.InterfaceCodeFilePath);
+            Instances.FileSystemOperator.Verify_File_DoesNotExist(instanceTypeContext.InterfaceCodeFilePath);
             // Don't care about the class.
 
-            await CodeFileGenerationOperations.Instance.CreateInstanceInterfaceCodeFile(
+            await Instances.CodeFileGenerationOperations.CreateInstanceInterfaceCodeFile(
                 instanceTypeContext.InterfaceCodeFilePath,
                 instanceTypeContext.NamespaceName,
                 instanceTypeContext.InterfaceTypeName,
@@ -69,10 +69,9 @@ namespace R5T.F0084
                 instanceTypeContext.MarkerInterfaceTypeName,
                 [
                     instanceTypeContext.MarkerAttributeNamespaceName,
-                    instanceTypeContext.MarkerInterfaceNamespaceName,
                 ]);
 
-            await CodeFileGenerationOperations.Instance.CreateInstanceClassCodeFile(
+            await Instances.CodeFileGenerationOperations.CreateInstanceClassCodeFile(
                 instanceTypeContext.ClassCodeFilePath,
                 instanceTypeContext.NamespaceName,
                 instanceTypeContext.ClassTypeName,
